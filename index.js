@@ -19,7 +19,7 @@ function notSilent(options) {
     return !options.json;
 }
 
-function startFarm(config, configPath, options, runWorker) {
+function startFarm(config, configPath, options, runWorker, afterBuildCallback) {
     config = Array.isArray(config) ? config : [config];
     options = options || {};
 
@@ -27,7 +27,7 @@ function startFarm(config, configPath, options, runWorker) {
         console.log(chalk.blue('[WEBPACK]') + ' Building ' + chalk.yellow(config.length) + ' ' + pluralize('target', config.length));
     }
     var builds = config.map(function (c, i) {
-        return runWorker(configPath, options, i, config.length);
+        return runWorker(configPath, options, i, config.length, null, afterBuildCallback);
     });
     if(options.bail) {
         return Promise.all(builds);
@@ -59,12 +59,14 @@ function startFarm(config, configPath, options, runWorker) {
  *   concurrent calls
  * @param {Number} [options.maxRetries=0] The maximum amount of retries
  *   on build error
- * @param {Function} [callback] A callback to be invoked once the build has
- *   been completed
+ * @param {Function} [callback] A callback to be invoked once all workers have
+ *   terminated
+ * @param {Function} [callback] A callback to be invoked once any build has
+ *   been completed, taking one argument, `configuratorFileName`.
  * @return {Promise} A Promise that is resolved once all builds have been
  *   created
  */
-function run(configPath, options, callback) {
+function run(configPath, options, callback, afterBuildCallback) {
     var config,
         argvBackup = process.argv,
         farmOptions = assign({}, options);

@@ -128,6 +128,7 @@ module.exports = function(configuratorFileName, options, index, expectedConfigLe
                         ? ' ' + chalk.yellow(new Date().toTimeString().split(/ +/)[0])
                         : '';
                     console.log('%s Finished building %s within %s seconds', chalk.blue('[WEBPACK' + timeStamp + ']'), chalk.yellow(getAppName(webpackConfig)), chalk.blue((stats.endTime - stats.startTime) / 1000));
+                    afterBuildCallback(configuratorFileName);
                 }
                 if(!watch) {
                     process.removeListener('SIGINT', shutdownCallback);
